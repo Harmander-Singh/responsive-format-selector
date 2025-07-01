@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Converter - Format Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #343a40;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .format-selector {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .format-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .format-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        .format-button {
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .format-button:hover {
+            border-color: #007bff;
+            background-color: #f8f9ff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        }
+
+        .format-button.active {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-color: #007bff;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .format-button.active:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        .format-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .format-name {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Upload area */
+        .upload-section {
+            width: 100%;
+        }
+
+        .upload-area {
+            width: 100%;
+            min-height: 200px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: #007bff;
+            background-color: #f0f7ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        /* File list */
+        .file-list {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .file-list.show {
+            display: block;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .file-icon {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #343a40;
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .file-status {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .remove-file:hover {
+            background: #c82333;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            margin-top: 20px;
+            display: none;
+            gap: 12px;
+        }
+
+        .action-buttons.show {
+            display: flex;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .format-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .format-button {
+                height: 38px;
+                font-size: 12px;
+            }
+            
+            .format-icon {
+                font-size: 16px;
+                margin-bottom: 2px;
+            }
+            
+            .format-name {
+                font-size: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+
+            .upload-area {
+                min-height: 150px;
+                padding: 20px;
+            }
+
+            .upload-icon {
+                font-size: 36px;
+            }
+
+            .upload-text {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .format-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .format-button {
+                height: 38px;
+                flex-direction: row;
+                gap: 8px;
+            }
+            
+            .format-icon {
+                margin-bottom: 0;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .file-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>File Format Converter</h1>
+            <p>Convert your images to different formats quickly and easily</p>
+        </div>
+
+        <div class="format-selector">
+            <label class="format-label">Select output format:</label>
+            <div class="format-grid">
+                <button class="format-button active" data-format="jpg">
+                    <div class="format-icon">🖼️</div>
+                    <div class="format-name">JPG</div>
+                </button>
+                <button class="format-button" data-format="png">
+                    <div class="format-icon">🎨</div>
+                    <div class="format-name">PNG</div>
+                </button>
+                <button class="format-button" data-format="webp">
+                    <div class="format-icon">🌐</div>
+                    <div class="format-name">WebP</div>
+                </button>
+                <button class="format-button" data-format="avif">
+                    <div class="format-icon">⚡</div>
+                    <div class="format-name">AVIF</div>
+                </button>
+            </div>
+        </div>
+        
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drop files here or click to select</div>
+                <div class="upload-subtext">Supports JPG, PNG, WebP, AVIF formats</div>
+            </div>
+            <input type="file" id="fileInput" class="hidden-input" multiple accept="image/*">
+            
+            <div class="file-list" id="fileList"></div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Processing...</div>
+            </div>
+            
+            <div class="action-buttons" id="actionButtons">
+                <button class="btn btn-primary" id="convertBtn">Convert Files</button>
+                <button class="btn btn-secondary" id="clearBtn">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class FileConverter {
+            constructor() {
+                this.selectedFormat = 'jpg';
+                this.files = [];
+                this.convertedFiles = [];
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                // Format selection
+                document.querySelectorAll('.format-button').forEach(button => {
+                    button.addEventListener('click', (e) => this.selectFormat(e));
+                });
+
+                // File upload
+                const uploadArea = document.getElementById('uploadArea');
+                const fileInput = document.getElementById('fileInput');
+
+                uploadArea.addEventListener('click', () => fileInput.click());
+                uploadArea.addEventListener('dragover', (e) => this.handleDragOver(e));
+                uploadArea.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
+                fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+
+                // Action buttons
+                document.getElementById('convertBtn').addEventListener('click', () => this.convertFiles());
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearFiles());
+            }
+
+            selectFormat(e) {
+                document.querySelectorAll('.format-button').forEach(btn => btn.classList.remove('active'));
+                e.target.closest('.format-button').classList.add('active');
+                this.selectedFormat = e.target.closest('.format-button').dataset.format;
+                
+                console.log('Selected format:', this.selectedFormat);
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                e.target.closest('.upload-area').classList.add('dragover');
+            }
+
+            handleDragLeave(e) {
+                e.preventDefault();
+                e.target.closest('.upload-area').classList.remove('dragover');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                e.target.closest('.upload-area').classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+                this.addFiles(files);
+            }
+
+            handleFileSelect(e) {
+                const files = Array.from(e.target.files).filter(file => file.type.startsWith('image/'));
+                this.addFiles(files);
+            }
+
+            addFiles(newFiles) {
+                newFiles.forEach(file => {
+                    if (!this.files.find(f => f.name === file.name && f.size === file.size)) {
+                        this.files.push(file);
+                    }
+                });
+                this.updateFileList();
+                this.updateActionButtons();
+            }
+
+            removeFile(index) {
+                this.files.splice(index, 1);
+                this.updateFileList();
+                this.updateActionButtons();
+            }
+
+            updateFileList() {
+                const fileList = document.getElementById('fileList');
+                
+                if (this.files.length === 0) {
+                    fileList.classList.remove('show');
+                    return;
+                }
+
+                fileList.classList.add('show');
+                fileList.innerHTML = this.files.map((file, index) => `
+                    <div class="file-item">
+                        <div class="file-info">
+                            <div class="file-icon">🖼️</div>
+                            <div class="file-details">
+                                <div class="file-name">${file.name}</div>
+                                <div class="file-size">${this.formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="file-status">Ready</span>
+                            <button class="remove-file" onclick="converter.removeFile(${index})">×</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateActionButtons() {
+                const actionButtons = document.getElementById('actionButtons');
+                if (this.files.length > 0) {
+                    actionButtons.classList.add('show');
+                } else {
+                    actionButtons.classList.remove('show');
+                }
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            async convertFiles() {
+                if (this.files.length === 0) return;
+
+                const progressContainer = document.getElementById('progressContainer');
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                const convertBtn = document.getElementById('convertBtn');
+
+                // Reset converted files array
+                this.convertedFiles = [];
+                
+                progressContainer.classList.add('show');
+                convertBtn.disabled = true;
+                convertBtn.textContent = 'Converting...';
+
+                try {
+                    for (let i = 0; i < this.files.length; i++) {
+                        const file = this.files[i];
+                        const progress = (i / this.files.length) * 100;
+                        
+                        progressFill.style.width = progress + '%';
+                        progressText.textContent = `Converting ${file.name} (${i + 1}/${this.files.length})`;
+                        
+                        try {
+                            // Actually convert the file
+                            const convertedFile = await this.convertFile(file);
+                            this.convertedFiles.push(convertedFile);
+                            
+                            // Update file list to show conversion status
+                            this.updateFileListStatus(i, 'Converted', 'success');
+                            
+                        } catch (error) {
+                            console.error(`Failed to convert ${file.name}:`, error);
+                            this.updateFileListStatus(i, 'Failed', 'error');
+                        }
+                    }
+
+                    // Update progress to 100%
+                    progressFill.style.width = '100%';
+                    progressText.textContent = 'Conversion complete! Starting downloads...';
+                    
+                    // Download all converted files
+                    if (this.convertedFiles.length > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause
+                        await this.downloadConvertedFiles();
+                    }
+                    
+                } catch (error) {
+                    console.error('Conversion process failed:', error);
+                    alert('Conversion failed. Please try again.');
+                }
+
+                // Reset interface after a short delay
+                setTimeout(() => {
+                    this.resetInterface();
+                }, 2000);
+            }
+
+            async convertFile(file) {
+                return new Promise((resolve, reject) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = () => {
+                        // Set canvas dimensions to match image
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        // Draw image on canvas
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Get the MIME type for the target format
+                        let mimeType;
+                        let quality = 0.9; // Default quality
+                        
+                        switch(this.selectedFormat.toLowerCase()) {
+                            case 'jpg':
+                            case 'jpeg':
+                                mimeType = 'image/jpeg';
+                                break;
+                            case 'png':
+                                mimeType = 'image/png';
+                                break;
+                            case 'webp':
+                                mimeType = 'image/webp';
+                                break;
+                            case 'avif':
+                                // Fallback to WebP if AVIF not supported
+                                mimeType = canvas.toDataURL('image/avif') ? 'image/avif' : 'image/webp';
+                                break;
+                            default:
+                                mimeType = 'image/png';
+                        }
+                        
+                        // Convert to target format
+                        try {
+                            const dataURL = canvas.toDataURL(mimeType, quality);
+                            
+                            // Convert dataURL to blob
+                            const base64Data = dataURL.split(',')[1];
+                            const byteCharacters = atob(base64Data);
+                            const byteNumbers = new Array(byteCharacters.length);
+                            
+                            for (let i = 0; i < byteCharacters.length; i++) {
+                                byteNumbers[i] = byteCharacters.charCodeAt(i);
+                            }
+                            
+                            const byteArray = new Uint8Array(byteNumbers);
+                            const blob = new Blob([byteArray], { type: mimeType });
+                            
+                            // Create converted file object
+                            const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                            const convertedFile = {
+                                name: `${originalName}.${this.selectedFormat}`,
+                                blob: blob,
+                                originalName: file.name,
+                                size: blob.size
+                            };
+                            
+                            resolve(convertedFile);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    
+                    img.onerror = () => {
+                        reject(new Error(`Failed to load image: ${file.name}`));
+                    };
+                    
+                    // Load the image
+                    img.src = URL.createObjectURL(file);
+                });
+            }
+
+            downloadFile(convertedFile) {
+                const url = URL.createObjectURL(convertedFile.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = convertedFile.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            async downloadConvertedFiles() {
+                // Download all converted files
+                for (const convertedFile of this.convertedFiles) {
+                    this.downloadFile(convertedFile);
+                    
+                    // Small delay between downloads to prevent browser blocking
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                // Show success message
+                const totalSize = this.convertedFiles.reduce((sum, file) => sum + file.size, 0);
+                alert(`Successfully converted and downloaded ${this.convertedFiles.length} file(s) to ${this.selectedFormat.toUpperCase()} format!\nTotal size: ${this.formatFileSize(totalSize)}`);
+            }
+
+            updateFileListStatus(index, status, type = 'success') {
+                const fileItems = document.querySelectorAll('.file-item');
+                if (fileItems[index]) {
+                    const statusElement = fileItems[index].querySelector('.file-status');
+                    if (statusElement) {
+                        statusElement.textContent = status;
+                        statusElement.className = 'file-status';
+                        
+                        if (type === 'success') {
+                            statusElement.style.background = '#d4edda';
+                            statusElement.style.color = '#155724';
+                        } else if (type === 'error') {
+                            statusElement.style.background = '#f8d7da';
+                            statusElement.style.color = '#721c24';
+                        }
+                    }
+                }
+            }
+
+            clearFiles() {
+                this.files = [];
+                this.convertedFiles = [];
+                this.updateFileList();
+                this.updateActionButtons();
+                this.resetInterface();
+                document.getElementById('fileInput').value = '';
+            }
+
+            resetInterface() {
+                const progressContainer = document.getElementById('progressContainer');
+                const convertBtn = document.getElementById('convertBtn');
+                
+                progressContainer.classList.remove('show');
+                convertBtn.disabled = false;
+                convertBtn.textContent = 'Convert Files';
+                document.getElementById('progressFill').style.width = '0%';
+            }
+
+            // Public API
+            getSelectedFormat() {
+                return this.selectedFormat;
+            }
+
+            setFormat(format) {
+                const button = document.querySelector(`[data-format="${format}"]`);
+                if (button) {
+                    button.click();
+                }
+            }
+        }
+
+        // Initialize the converter
+        const converter = new FileConverter();
+
+        // Expose API for external use
+        window.fileConverter = {
+            getSelectedFormat: () => converter.getSelectedFormat(),
+            setFormat: (format) => converter.setFormat(format),
+            getFiles: () => converter.files,
+            clearFiles: () => converter.clearFiles()
+        };
+    </script>
+</body>
+</html>
